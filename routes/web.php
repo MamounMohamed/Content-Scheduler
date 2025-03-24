@@ -16,9 +16,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard',[PostController::class,'index'])->middleware(['auth','verified'])->name('dashboard');
-Route::get('/post/{id}',[PostController::class,'edit'])->middleware(['auth','verified'])->name('post.edit');
-
+Route::resource('posts', PostController::class)->middleware(['auth:sanctum', 'verified']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -28,5 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-require __DIR__.'/test.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/test.php';
+require __DIR__ . '/auth.php';

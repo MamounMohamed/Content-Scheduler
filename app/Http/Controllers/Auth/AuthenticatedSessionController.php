@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
         $user = User::query()->where('email', $request->email)->first();
         Auth::login($user);
         $token = $user->createToken('auth_token');
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('posts.index', absolute: false));
     }
 
     /**

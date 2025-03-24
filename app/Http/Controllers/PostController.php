@@ -31,9 +31,20 @@ class PostController extends Controller
             $post->time = Carbon::parse($post->scheduled_time)->format('H:i A');
             return $post;
         });
-        return Inertia::render('Dashboard', ['posts' => $posts, 'platforms' => $platforms]);
+        return Inertia::render('Posts', ['posts' => $posts, 'platforms' => $platforms]);
     }
 
+    public function create()
+    {
+        return Inertia::render(
+            'PostEditor/PostEditor',
+            [
+                'postData' => [],
+                'allPlatforms' => \App\Models\Platform::get(),
+                'mode' => 'create'
+            ]
+        );
+    }
 
     public function store(PostRequest $request)
     {
@@ -56,7 +67,8 @@ class PostController extends Controller
             'PostEditor/PostEditor',
             [
                 'postData' => $this->postService->find($id),
-                'allPlatforms' => \App\Models\Platform::all()
+                'allPlatforms' => \App\Models\Platform::all(),
+                'mode' => 'edit'
             ]
         );
     }
@@ -82,6 +94,20 @@ class PostController extends Controller
             return $this->successResponse(
                 [
                     'post' => PostResource::make($post),
+                ]
+            );
+        } catch (HttpException $e) {
+            return $this->failedResponse($e->getMessage(), $e->getStatusCode());
+        }
+    }
+
+    public function destroy(Request $request, string $id)
+    {
+        try {
+            $this->postService->destroy($id);
+            return $this->successResponse(
+                [
+                    'message' => 'Post deleted successfully'
                 ]
             );
         } catch (HttpException $e) {

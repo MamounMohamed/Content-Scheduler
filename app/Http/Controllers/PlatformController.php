@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PlatformController extends Controller
 {
     public function index()
     {
-        return \App\Models\Platform::all();
+        return Inertia::render('Settings', ['platforms' => \App\Models\Platform::all()]);
     }
 
     public function toggleActive(Request $request, string $id)
@@ -20,4 +22,5 @@ class PlatformController extends Controller
 
         return $platform;
     }
+
 }

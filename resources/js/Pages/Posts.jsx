@@ -4,33 +4,43 @@ import React, { useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { PencilLine, Trash } from 'lucide-react';
+import axios from 'axios';
 
 const localizer = momentLocalizer(moment);
 
-const Dashboard = (props) => {
+const Posts = (props) => {
     const [view, setView] = useState("calendar"); // 'calendar' or 'list'
     const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'scheduled', 'published', 'error'
-    const [filterDate, setFilterDate] = useState(new Date('2022-01-01')); // Date
-    const posts = props.posts;
+    const [posts, setPosts] = useState(props.posts);
     const filteredPosts = posts.filter((post) =>
         filterStatus === "all" ? true :
-        post.status === filterStatus
+            post.status === filterStatus
     );
-
-    console.log(filteredPosts);
+    function onDelete(id) {
+        axios.delete(route('posts.destroy', { id: id }))
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        posts.splice(posts.findIndex(post => post.id === id), 1);
+        setPosts([...posts]);
+    }
 
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Dashboard
+                    Posts
                 </h2>
             }>
-            <Head title="Dashboard" />
+            <Head title="Posts" />
 
-            
+
             <div className="p-4">
-                <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+                <h1 className="text-2xl font-bold mb-4">Your Posts</h1>
 
                 {/* View Toggle */}
                 <div className="flex space-x-4 mb-4">
@@ -65,29 +75,20 @@ const Dashboard = (props) => {
                     </select>
                 </div>
 
-                {/* Filter by Date */}
-                {/* <div className="mb-4">
-                    <label className="mr-2">Filter by Date:</label>
-                    <DatePicker
-                        selected={filterDate}
-                        onChange={(date) => setFilterDate(date)}
-                        showTimeSelect
-                        timeFormat="HH:mm"
-                        timeIntervals={15}
-                        dateFormat="MMMM d, yyyy h:mm aa"
-                        className="p-2 border rounded"
-                    />
-                </div> */}
 
                 {/* Calendar View */}
                 {view === "calendar" && (
                     <Calendar
                         localizer={localizer}
-                        events={filteredPosts.map((post) => ({
-                            title: post.title,
-                            start: post.date,
-                            end: post.date,
-                        }))}
+                        views={['month', 'agenda']} // Only show month and agenda views
+
+                        events={
+                            filteredPosts.map((post) => ({
+                                title: post.title,
+                                start: Date.parse(post.scheduled_time),
+                                end: Date.parse(post.scheduled_time),
+                            }))
+                        }
                         startAccessor="start"
                         endAccessor="end"
                         style={{ height: 500 }}
@@ -98,19 +99,37 @@ const Dashboard = (props) => {
                 {view === "list" && (
                     <ul className="space-y-2">
                         {filteredPosts.map((post) => (
-                            <li key={post.id} className="p-2 border rounded">
-                                <div className="font-bold">{post.title}</div>
-                                <div>{post.date}</div>
-                                <div>{post.time}</div>
-                                <div
-                                    className={`text-sm ${post.status === "scheduled"
+                            <li key={post.id} className="p-2 border rounded grid xl:grid-cols-5 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                <div className="flex flex-col">
+
+                                    <div className="font-bold">{post.title}</div>
+                                    <div
+                                        className={`text-sm ${post.status === "scheduled"
                                             ? "text-blue-500"
                                             : post.status === "published"
                                                 ? "text-green-500"
                                                 : "text-red-500"
-                                        }`}
-                                >
-                                    {post.status}
+                                            }`}
+                                    >
+                                        {post.status}
+                                    </div>
+                                </div>
+
+                                <div>{post.date}</div>
+                                <div>{post.time}</div>
+                                <div className='truncate'>{post.content}</div>
+
+                                <div className="flex space-x-2">
+                                    {
+                                        post.status !== "published" &&
+                                        <div className='flex flex-row items-center space-x-2'>
+                                            <a href={route('posts.edit', { id: post.id })}>
+                                                <PencilLine className='cursor-pointer' />
+                                            </a>
+                                            <Trash onClick={() => onDelete(post.id)} className='cursor-pointer' />
+                                        </div>
+                                    }
+
                                 </div>
                             </li>
                         ))}
@@ -121,5 +140,5 @@ const Dashboard = (props) => {
     );
 };
 
-export default Dashboard;
+export default Posts;
 

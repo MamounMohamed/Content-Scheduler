@@ -22,6 +22,7 @@
         "vite": "^6.0.11"
     },
     "dependencies": {
+        "lucide-react": "^0.483.0",
         "moment": "^2.30.1",
         "react-big-calendar": "^1.18.0",
         "react-datepicker": "^8.2.1"

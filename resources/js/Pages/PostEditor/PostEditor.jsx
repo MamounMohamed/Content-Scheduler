@@ -1,20 +1,22 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import React, { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-
+import TextInput from "@/Components/TextInput"; // Reusable text input
+import TextArea from "@/Components/TextArea"; // Reusable textarea
+import MultiSelect from "@/Components/MultiSelect"; // Reusable multi-select dropdown
+import DateTimePicker from "@/Components/DateTimePicker"; // Reusable date/time picker
+import FileUpload from "@/Components/FileUpload"; // Reusable file upload
+import ErrorBox from "@/Components/ErrorBox"; // Reusable error message box
+import SubmitButton from "@/Components/SubmitButton"; // Reusable submit button
+import axios from 'axios';
 const PostEditor = (props) => {
-    
-    const { postData, allPlatforms } = props;
-    console.log(postData);
-    console.log(allPlatforms);
+    const { postData, allPlatforms, mode } = props;
 
     const [title, setTitle] = useState(postData?.title || "");
     const [content, setContent] = useState(postData?.content || "");
-    const [image, setImage] = useState(postData?.image_url || null);
+    const [image, setImage] = useState(null);
     const [platforms, setPlatforms] = useState(postData?.platforms || []);
-    const [scheduleDate, setScheduleDate] = useState(postData?.scheduled_time || new Date());
+    const [scheduleDate, setScheduleDate] = useState(new Date(postData?.scheduled_time || new Date()));
     const [error, setError] = useState("");
 
     const handleSubmit = (e) => {
@@ -23,106 +25,97 @@ const PostEditor = (props) => {
             setError("Please fill out all required fields.");
             return;
         }
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('platforms', platforms);
+        formData.append('scheduled_time', scheduleDate);
+        if (image) 
+            formData.append("image", image);
+
+        const config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }
+        if (mode === 'edit') {
+            axios.put(route('posts.update', { post: postData.id }), formData, config)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        } else {
+            axios.post(route('posts.store'), formData, config)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
         setError("");
         console.log("Submitting:", { title, content, image, platforms, scheduleDate });
     };
 
     return (
         <AuthenticatedLayout>
-            <Head
-                header={
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                        PostEditor
-                    </h2>
-                }
-            />
-            <div className="p-4">
-                <h1 className="text-2xl font-bold mb-4">Post Editor</h1>
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <Head title="Post Editor" />
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Post Editor</h1>
+                <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Title Input */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="w-full p-2 border rounded"
-                            placeholder="Enter post title"
-                            maxLength={100}
-                            required
-                        />
-                    </div>
+                    <TextInput
+                        label="Title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter post title"
+                        maxLength={100}
+                        required
+                    />
 
                     {/* Content Textarea */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Content</label>
-                        <textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            className="w-full p-2 border rounded"
-                            placeholder="Enter post content"
-                            maxLength={500}
-                            rows={4}
-                            required
-                        />
-                        <div className="text-sm text-gray-500">{content.length}/500 characters</div>
-                    </div>
+                    <TextArea
+                        label="Content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        placeholder="Enter post content"
+                        maxLength={500}
+                        rows={4}
+                        required
+                    />
 
                     {/* Platform Selector */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Platforms</label>
-                        <select
-                            multiple
-                            value={platforms}
-                            onChange={(e) =>
-                                setPlatforms([...e.target.selectedOptions].map((opt) => opt.value))
-                            }
-                            className="w-full p-2 border rounded"
-                            required
-                        >
-                            {allPlatforms?.map((platform) => (
-                                <option key={platform.id} value={platform.id}>
-                                    {platform.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <MultiSelect
+                        label="Platforms"
+                        options={allPlatforms?.map((platform) => ({
+                            value: platform.id,
+                            label: platform.name,
+                        }))}
+                        value={platforms}
+
+                        onChange={(selected) => setPlatforms(selected)}
+                        required
+                    />
 
                     {/* Date/Time Picker */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Schedule Date</label>
-                        <DatePicker
-                            selected={scheduleDate}
-                            onChange={(date) => setScheduleDate(date)}
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            timeIntervals={15}
-                            dateFormat="MMMM d, yyyy h:mm aa"
-                            className="w-full p-2 border rounded"
-                        />
-                    </div>
+                    <DateTimePicker
+                        label="Schedule Date"
+                        selected={scheduleDate}
+                        onChange={(date) => setScheduleDate(date)}
+                    />
 
                     {/* Image Upload */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Upload Image</label>
-                        <input
-                            type="file"
-                            onChange={(e) => setImage(e.target.files[0])}
-                            className="w-full p-2 border rounded"
-                            accept="image/*"
-                        />
-                    </div>
+                    <FileUpload
+                        label="Upload Image"
+                        onChange={(e) => setImage(e.target.files[0])}
+                        accept="image/*"
+                    />
 
                     {/* Error Message */}
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {error && <ErrorBox message={error} />}
 
                     {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                        Schedule Post
-                    </button>
+                    <SubmitButton label="Schedule Post" />
                 </form>
             </div>
         </AuthenticatedLayout>

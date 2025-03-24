@@ -24,9 +24,9 @@ class PostRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'image_url' => ['nullable', 'string', 'max:255'],
+            'image' => ['nullable', 'file'],
             'scheduled_time' => ['required', 'date'],
-            'status' => ['required', 'string'],
+            'status' => ['nullable', 'string'],
             'platforms' => ['required', 'array'],
             'platforms.*' => ['required', 'integer'],
         ];
