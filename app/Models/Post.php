@@ -78,4 +78,25 @@ class Post extends Model
         $this->save();
         return $this->status;
     }
+    public function getDateAttribute()
+    {
+        $dateTime = Carbon::parse($this->scheduled_time);
+        return $dateTime->format('Y-m-d');
+    }
+
+    public function getTimeAttribute()
+    {
+        $dateTime = Carbon::parse($this->scheduled_time);
+        return $dateTime->format('H:i');
+    }
+    public function scopeWhereStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    public function scopeWhereDate($query, $date)
+    {
+        $date = Carbon::parseDate($date);
+        return $query->where('scheduled_time', '>=', $date);
+    }
 }

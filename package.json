@@ -20,5 +20,10 @@
         "react-dom": "^18.2.0",
         "tailwindcss": "^3.2.1",
         "vite": "^6.0.11"
+    },
+    "dependencies": {
+        "moment": "^2.30.1",
+        "react-big-calendar": "^1.18.0",
+        "react-datepicker": "^8.2.1"
     }
 }

@@ -22,7 +22,7 @@ class PostFactory extends Factory
             'image_url' => $this->faker->imageUrl(),
             'scheduled_time' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'status' => $this->faker->randomElement(['draft', 'scheduled', 'published']),
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => 1,
         ];
     }
 }
