@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+        User::factory()->create(['email' => 'mamoun@test.com','password'=>'mamoun@123456','name'=>'Mamoun Mohammed']);
         $this->call(PostPlatformSeeder::class);
     }
 }

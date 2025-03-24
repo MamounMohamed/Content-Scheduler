@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,7 +44,7 @@ class Post extends Model
 
     public function scheduledTime()
     {
-        return $this->scheduled_time;
+        return Carbon::parse($this->scheduled_time);
     }
 
     public function isPublished()
@@ -63,10 +64,18 @@ class Post extends Model
 
     public function getEffectiveStatusAttribute()
     {
-        if ($this->scheduledTime()->isPast() && $this->status === 'scheduled') {
-            $this->status = 'published';
-            $this->save();
+        if ($this->scheduledTime()->isPast() && $this->status == 'scheduled') {
+            $this->update([
+                'status' => 'published',
+            ]);
         }
+
+        if ($this->scheduledTime()->isFuture() && $this->status == 'published') {
+            $this->update([
+                'status' => 'scheduled',
+            ]);
+        }
+        $this->save();
         return $this->status;
     }
 }

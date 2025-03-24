@@ -24,4 +24,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+require __DIR__.'/test.php';
 require __DIR__.'/auth.php';
