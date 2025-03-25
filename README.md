@@ -6,7 +6,7 @@ Before you start, ensure you have the following installed:
 - **Composer** (latest version recommended)
 - **Node.js** (latest LTS version)
 - **NPM** (installed with Node.js)
-- **MySQL** (or the configured database for this project)
+- **SQLite** 
 
 ## Installation Steps
 
