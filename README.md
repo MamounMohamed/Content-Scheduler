@@ -62,6 +62,12 @@ To test the project, you can run:
 php artisan test
 ```
 
+## Seeding the Database
+To seed the database, run:
+```sh
+php artisan db:seed
+```
+
 ## Running the `posts:update-status` Command
 To manually update the post statuses, run:
 ```sh
