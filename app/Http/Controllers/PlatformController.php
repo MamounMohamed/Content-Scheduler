@@ -7,19 +7,30 @@ use Inertia\Inertia;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Models\PostPlatform;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class PlatformController extends Controller
 {
+    protected $platformsCacheKey;
+
+    public function __construct()
+    {
+        $this->platformsCacheKey = 'platforms_user_id_';
+    }
+
     public function index()
     {
-        $platforms = PostPlatform::with(['platform', 'post'])
-            ->whereUser(auth()->guard('sanctum')->user())->get();
+        $platforms = Cache::remember($this->platformsCacheKey.auth()->guard('sanctum')->user()->id, 3600, function () {
+            return PostPlatform::with(['platform', 'post'])
+                ->whereUser(auth()->guard('sanctum')->user())->get();
+        });
 
         return Inertia::render('Settings/Settings', ['platforms' => $platforms]);
     }
 
     public function toggleActive(string $id)
     {
+        Cache::forget($this->platformsCacheKey.auth()->guard('sanctum')->user()->id);
         try {
             DB::beginTransaction();
             $platform = PostPlatform::find($id);
