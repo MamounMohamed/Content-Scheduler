@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\Post;
+
 class UpdatePostStatus extends Command
 {
     /**
@@ -19,22 +20,26 @@ class UpdatePostStatus extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Update post status';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $posts = Post::whereScheduledAndPastScheduledTime()->get();
-        DB::beginTransaction();
-        foreach ($posts as $post) {
-            $post->update([
-                'status' => 'published',
-            ]);
+        try {
+            $posts = Post::whereScheduledAndPastScheduledTime()->get();
+            DB::beginTransaction();
+            foreach ($posts as $post) {
+                $post->update([
+                    'status' => 'published',
+                ]);
+            }
+            DB::commit();
+            $this->info('Posts\' status updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->error('Failed to update posts\' status');
         }
-        DB::commit();
-
-        $this->info('Post status updated successfully');
     }
 }
