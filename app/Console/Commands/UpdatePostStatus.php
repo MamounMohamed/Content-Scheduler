@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\Post;
-
+use Illuminate\Support\Facades\Cache;
 class UpdatePostStatus extends Command
 {
     /**
@@ -34,6 +34,7 @@ class UpdatePostStatus extends Command
                 $post->update([
                     'status' => 'published',
                 ]);
+                $this->info('Updating post status for post id: ' . $post->id);
             }
             DB::commit();
             $this->info('Posts\' status updated successfully');
@@ -41,5 +42,8 @@ class UpdatePostStatus extends Command
             DB::rollBack();
             $this->error('Failed to update posts\' status');
         }
+
+        Cache::flush();
+        
     }
 }

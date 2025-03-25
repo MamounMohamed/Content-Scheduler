@@ -64,7 +64,8 @@ class Post extends Model
 
     public function scopeWhereScheduledAndPastScheduledTime($query)
     {
-        return $query->where('status', 'scheduled')->where('scheduled_time', '<=', Carbon::now());
+        $currentDateTime = Carbon::now()->utc()->toIso8601String();; // Current time in UTC
+        return $query->where('status', 'scheduled')->where('scheduled_time', '<=', $currentDateTime);
     }
 
     public function scopeWhereAuthenticatedUser($query)
@@ -80,14 +81,14 @@ class Post extends Model
 
     public function getDateAttribute()
     {
-        $dateTime = Carbon::parse($this->scheduled_time);
+        $dateTime = Carbon::parse($this->scheduled_time)->setTimezone('GMT+2');
         return $dateTime->format('Y-m-d');
     }
 
     public function getTimeAttribute()
     {
-        $dateTime = Carbon::parse($this->scheduled_time);
-        return $dateTime->format('H:i');
+        $dateTime = Carbon::parse($this->scheduled_time)->setTimezone('GMT+2');
+        return $dateTime->format('H:i A');
     }
     public function scopeWhereStatus($query, $status)
     {

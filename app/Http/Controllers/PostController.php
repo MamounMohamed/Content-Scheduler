@@ -64,8 +64,7 @@ class PostController extends Controller
         try {
 
             Cache::forget($this->postsCacheKey());
-            Cache::forget($this->postsCacheKeyNonPaginated());
-            $post = $this->postService->store($request->validated());
+                       $post = $this->postService->store($request->validated());
             return $this->successResponse(
                 [
                     'post' => PostResource::make($post),
@@ -102,8 +101,7 @@ class PostController extends Controller
     {   
         Cache::forget($this->postsCacheKey());
         Cache::forget($this->postCacheKey($id));
-        Cache::forget($this->postsCacheKeyNonPaginated());
-
+       
         try {
             $post = $this->postService->update($request->validated(), $id);
             return $this->successResponse(
@@ -124,7 +122,7 @@ class PostController extends Controller
                 return $this->postService->find($id)->load('platforms', 'user');
             });
 
-            return Inertia::render('Posts/View', ['post' => $post]);
+            return Inertia::render('Posts/View', ['postData' => $post]);
             
         } catch (HttpException $e) {
             return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
@@ -137,8 +135,7 @@ class PostController extends Controller
     public function destroy(Request $request, string $id)
     {
         Cache::forget($this->postsCacheKey());
-        Cache::forget($this->postsCacheKeyNonPaginated());
-        Cache::forget($this->postCacheKey($id));
+               Cache::forget($this->postCacheKey($id));
         try {
             $this->postService->destroy($id);
             return $this->successResponse(
