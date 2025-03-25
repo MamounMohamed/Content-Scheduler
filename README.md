@@ -76,4 +76,6 @@ php artisan posts:update-status
 
 ## Additional Notes
 - Ensure your `.env` file is correctly configured with the database and other necessary settings.
+- The used database is `sqlite`, so you may need to install the `pdo_sqlite` extension for your PHP version.
+
 
