@@ -12,6 +12,6 @@ class PostPlatformSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\PostPlatform::factory(10)->create();
+        \App\Models\PostPlatform::factory(50)->create();
     }
 }

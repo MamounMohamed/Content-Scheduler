@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        User::factory()->create(['email' => 'mamoun@test.com','password'=>Hash::make('mamoun@123456'),'name'=>'Mamoun Mohammed']);
+        User::factory()->create(['email' => 'main_user@test.com','password'=>Hash::make('123456'),'name'=>'Mamoun Mohammed']);
+        User::factory()->create(['email' => 'test_user@test.com','password'=>Hash::make('123456'),'name'=>'Other Account']);
         $this->call(PostPlatformSeeder::class);
     }
 }

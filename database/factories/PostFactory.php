@@ -16,13 +16,15 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $randomUsers = [1,1,2];
+
         return [
-            'title' => $this->faker->word(),
-            'content' => $this->faker->text(),
+            'title' =>  $this->faker->sentence(3),
+            'content' => $this->faker->paragraph(3),
             'image_url' => $this->faker->imageUrl(),
             'scheduled_time' => $this->faker->dateTimeBetween('now', '+3 months'),
             'status' => $this->faker->randomElement(['draft', 'scheduled', 'published']),
-            'user_id' => 1,
+            'user_id' => $this->faker->randomElement($randomUsers),
         ];
     }
 }

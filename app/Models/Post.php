@@ -67,6 +67,11 @@ class Post extends Model
         return $query->where('status', 'scheduled')->where('scheduled_time', '<=', Carbon::now());
     }
 
+    public function scopeWhereAuthenticatedUser($query)
+    {
+        return $query->where('user_id', auth()->guard('sanctum')->user()->id);
+    }
+
 
     public function isAuthorized()
     {

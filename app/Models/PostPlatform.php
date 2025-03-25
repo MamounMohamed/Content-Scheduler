@@ -46,10 +46,10 @@ class PostPlatform extends Pivot
         return $this->post->isAuthorized();
     }
 
-    public function scopeWhereUser($query, $user)
+    public function scopeWhereAuthenticatedUser($query)
     {
-        return $query->whereHas('post', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
+        return $query->whereHas('post', function ($query) {
+            $query->where('user_id', auth()->guard(('sanctum'))->user()->id);
         });
     }
 

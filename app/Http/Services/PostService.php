@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Platform;
 use App\Models\PostPlatform;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -19,14 +20,15 @@ class PostService
 
     public function index()
     {
-        $posts = \App\Models\Post::where('user_id', auth()->guard('sanctum')->user()->id)->get();
+        $posts = \App\Models\Post::whereAuthenticatedUser()->orderBy('scheduled_time', 'asc')->get();
         $posts->map(function ($post) {
             $post->date = Carbon::parse($post->scheduled_time)->format('Y-m-d');
             $post->time = Carbon::parse($post->scheduled_time)->format('H:i A');
             return $post;
         });
 
-        return $posts->values();
+
+        return $posts;
     }
 
     public  function store(array $data)

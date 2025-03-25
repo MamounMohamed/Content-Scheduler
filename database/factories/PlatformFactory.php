@@ -16,9 +16,15 @@ class PlatformFactory extends Factory
      */
     public function definition(): array
     {
+        $platforms = ['twitter', 'instagram', 'facebook', 'tiktok', 'youtube', 'linkedin', 'pinterest', 'tumblr', 'reddit', 'telegram'];
+        $names =[];
+        foreach ($platforms as $platform) {
+            $names[] = ucfirst($platform);
+        }
+
         return [
-            'name' => $this->faker->name(),
-            'type' => $this->faker->randomElement(['twitter', 'instagram', 'facebook', 'tiktok', 'youtube', 'linkedin', 'pinterest', 'tumblr', 'reddit', 'telegram', 'whatsapp']),
+            'name' => $this->faker->randomElement($names),
+            'type' => $this->faker->randomElement($platforms),
         ];
     }
 }

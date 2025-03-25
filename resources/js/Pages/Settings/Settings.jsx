@@ -2,18 +2,27 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import React, { useState } from "react";
 import axios from "axios";
-import { toast , ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Paginator from "@/Components/Paginator";
 
 const Settings = ({ platforms }) => {
     // State to store platforms and trigger re-renders
     const [platformList, setPlatformList] = useState(platforms);
-    console.log(platforms);
+    const [currentPage, setCurrentPage] = useState(1); // Current page for client-side pagination
+    const [itemsPerPage] = useState(10); // Number of items per page
+
+    // Calculate paginated platforms
+    const indexOfLastPlatform = currentPage * itemsPerPage;
+    const indexOfFirstPlatform = indexOfLastPlatform - itemsPerPage;
+    const currentPlatforms = platformList.slice(indexOfFirstPlatform, indexOfLastPlatform);
+
     // Function to toggle the active status of a platform
     const handleToggleActive = async (platformId) => {
         try {
             const response = await axios.put(route('platforms.toggle-active', { id: platformId }));
-            const updatedPlatform = response.data;
+            console.log(response);
+            const updatedPlatform = response?.data?.data?.platform;
 
             // Update the platform list in state
             setPlatformList((prevPlatforms) =>
@@ -37,6 +46,11 @@ const Settings = ({ platforms }) => {
         }
     };
 
+    // Handle page change
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title="Settings" />
@@ -56,11 +70,12 @@ const Settings = ({ platforms }) => {
                                 >
                                     Name
                                 </th>
-
                                 <th
                                     scope="col"
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                                >Post</th>
+                                >
+                                    Post
+                                </th>
                                 <th
                                     scope="col"
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -76,15 +91,14 @@ const Settings = ({ platforms }) => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                            {platformList.length > 0 ? (
-                                platformList.map((platform) => (
+                            {currentPlatforms.length > 0 ? (
+                                currentPlatforms.map((platform) => (
                                     <tr key={platform.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
-                                            {platform.platform.name}
+                                            {platform.name}
                                         </td>
-
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 ">
-                                            {platform.post.title}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            {platform.post_title}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                             {platform.is_active ? (
@@ -114,15 +128,24 @@ const Settings = ({ platforms }) => {
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan="3"
+                                        colSpan="4"
                                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center"
                                     >
-                                        No platforms found.
+                                        No platforms found on this page.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Paginator */}
+                <div className="mt-6 flex justify-center">
+                    <Paginator
+                        currentPage={currentPage}
+                        lastPage={Math.ceil(platformList.length / itemsPerPage)}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
 
                 {/* Toast Notifications Container */}

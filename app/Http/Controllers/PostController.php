@@ -15,26 +15,36 @@ use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
-    protected $postService , $postsCacheKey , $platformsCacheKey ;
+    protected $postService ;
 
     public function __construct(PostService $postService)
     {
         $this->postService = $postService;
-        $this->postsCacheKey = 'all_posts_cache_user_id_';
-        $this->platformsCacheKey = 'platforms_cache_pluck_name_id';
+    }
+    private function postsCacheKey(){
+        return 'all_posts_cache_user_id_'.auth()->guard('sanctum')->user()->id;
+    }
+    private function platformsCacheKey(){
+        return 'platforms_cache_pluck_name_id';
+    }
+    private function postCacheKey($postId){
+        return 'posts_cache_find_'.$postId;
     }
 
     public function index(Request $request)
     {
+        
 
-        $posts = Cache::remember($this->postsCacheKey.auth()->guard('sanctum')->user()->id, 3600, function () {
+        $posts = Cache::remember($this->postsCacheKey(), 3600, function () {
             return $this->postService->index();
         });
 
-        $platforms = Cache::remember($this->platformsCacheKey, 3600, function () {
+        $platforms = Cache::remember($this->platformsCacheKey(), 3600, function () {
             return \App\Models\Platform::pluck('name', 'id');
         });
-        return Inertia::render('Posts', ['posts' => $posts, 'platforms' => $platforms]);
+
+
+        return Inertia::render('Posts', ['posts' => $posts, 'platforms' => $platforms ]);
     }
 
     public function create()
@@ -53,7 +63,8 @@ class PostController extends Controller
     {
         try {
 
-            Cache::forget($this->postsCacheKey.auth()->guard('sanctum')->user()->id);
+            Cache::forget($this->postsCacheKey());
+            Cache::forget($this->postsCacheKeyNonPaginated());
             $post = $this->postService->store($request->validated());
             return $this->successResponse(
                 [
@@ -68,19 +79,31 @@ class PostController extends Controller
 
     public function edit(string $id)
     {
+        try {
+        $post = $this->postService->find($id);
         return Inertia::render(
             'PostEditor/PostEditor',
             [
-                'postData' => $this->postService->find($id),
+                'postData' => $post,
                 'allPlatforms' => \App\Models\Platform::all(),
                 'mode' => 'edit'
             ]
         );
+    
+        }
+        catch (HttpException $e) {
+            return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
+                'status' => $e->getStatusCode(),
+                'message' => $e->getMessage(),
+            ])->toResponse(request())->setStatusCode($e->getStatusCode());
+        }
     }
     public function update(PostRequest $request, string $id)
     {   
-        Cache::forget($this->postsCacheKey.auth()->guard('sanctum')->user()->id);
-        Cache::forget('posts_cache_find_'.$id);
+        Cache::forget($this->postsCacheKey());
+        Cache::forget($this->postCacheKey($id));
+        Cache::forget($this->postsCacheKeyNonPaginated());
+
         try {
             $post = $this->postService->update($request->validated(), $id);
             return $this->successResponse(
@@ -97,7 +120,7 @@ class PostController extends Controller
     public function show(string $id)
     {
         try {
-            $post = Cache::remember('posts_cache_find_'.$id, 3600, function () use ($id) {
+            $post = Cache::remember($this->postCacheKey($id), 3600, function () use ($id) {
                 return $this->postService->find($id)->load('platforms', 'user');
             });
 
@@ -107,14 +130,18 @@ class PostController extends Controller
                 ]
             );
         } catch (HttpException $e) {
-            return $this->failedResponse($e->getMessage(), $e->getStatusCode());
+            return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
+                'status' => $e->getStatusCode(),
+                'message' => $e->getMessage(),
+            ])->toResponse(request())->setStatusCode($e->getStatusCode());
         }
     }
 
     public function destroy(Request $request, string $id)
     {
-        Cache::forget($this->postsCacheKey.auth()->guard('sanctum')->user()->id);
-        Cache::forget('posts_cache_find_'.$id);
+        Cache::forget($this->postsCacheKey());
+        Cache::forget($this->postsCacheKeyNonPaginated());
+        Cache::forget($this->postCacheKey($id));
         try {
             $this->postService->destroy($id);
             return $this->successResponse(

@@ -25,6 +25,7 @@ class PostResource extends JsonResource
                 'platforms' => $this->platforms,
                 'date' => $this->date,
                 'time' => $this->time,
+
             ];
     }
 }
