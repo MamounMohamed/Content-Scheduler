@@ -40,7 +40,7 @@ class PostService
             $postImage = Arr::get($data, 'image');
             if ($postImage) {
                 $postImageUrl = Storage::disk('public')->putFile('posts', $postImage);
-                Arr::set($data, 'image_url', $postImageUrl);
+                Arr::set($data, 'image_url', Storage::disk('public')->url($postImageUrl));
             }
 
             $post = Post::create(Arr::except($data, ['platforms','image']));
@@ -75,8 +75,8 @@ class PostService
             Arr::set($data, 'status', 'scheduled'); // Default status is scheduled
             $postImage = Arr::get($data, 'image');
             if ($postImage) {
-                $postImageUrl = Storage::disk('public')->putFile('posts', $postImage->getClientOriginalName(), $postImage);
-                Arr::set($data, 'image_url', $postImageUrl);
+                $postImageUrl = Storage::disk('public')->putFile('posts', $postImage);
+                Arr::set($data, 'image_url', Storage::disk('public')->url($postImageUrl));
             }
             $post->update(Arr::except($data, ['platforms','image']));
             $post->platforms()->sync(Arr::get($data, 'platforms', []));
@@ -85,7 +85,7 @@ class PostService
             return $post;
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new HttpException(500, 'Failed to update post');
+            throw new HttpException(500, 'Failed to update post ' . $e->getMessage());
         }
     }
 

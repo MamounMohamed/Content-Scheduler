@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
@@ -84,7 +85,6 @@ class Post extends Model
         $dateTime = Carbon::parse($this->scheduled_time)->setTimezone('GMT+2');
         return $dateTime->format('Y-m-d');
     }
-
     public function getTimeAttribute()
     {
         $dateTime = Carbon::parse($this->scheduled_time)->setTimezone('GMT+2');

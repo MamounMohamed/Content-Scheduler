@@ -5,7 +5,7 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import Paginator from '@/Components/Paginator';
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { PencilLine, Trash, CirclePlus } from 'lucide-react';
+import { PencilLine, Trash, CirclePlus , Eye } from 'lucide-react';
 
 const localizer = momentLocalizer(moment);
 
@@ -139,6 +139,9 @@ const Posts = (props) => {
                                     <div className="flex space-x-2">
                                         {post.status !== "published" && (
                                             <div className='flex flex-row items-center space-x-2'>
+                                                <a href={route('posts.show', { id: post.id })}>
+                                                    <Eye className='cursor-pointer' />
+                                                </a>
                                                 <a href={route('posts.edit', { id: post.id })}>
                                                     <PencilLine className='cursor-pointer' />
                                                 </a>
