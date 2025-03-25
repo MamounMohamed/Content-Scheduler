@@ -87,13 +87,12 @@ const Posts = (props) => {
                 {view === "calendar" && (
                     <Calendar
                         localizer={localizer}
-                        views={['month', 'agenda']} // Only show month and agenda views
 
                         events={
                             filteredPosts.map((post) => ({
                                 title: post.title,
-                                start: Date.parse(post.scheduled_time),
-                                end: Date.parse(post.scheduled_time),
+                                start: moment(post.scheduled_time).toDate(), 
+                                end: moment(post.scheduled_time).toDate(), 
                             }))
                         }
                         startAccessor="start"

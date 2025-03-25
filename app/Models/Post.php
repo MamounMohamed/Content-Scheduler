@@ -49,40 +49,30 @@ class Post extends Model
 
     public function isPublished()
     {
-        return $this->effective_status === 'published';
+        return $this->status === 'published';
     }
 
     public function isScheduled()
     {
-        return $this->effective_status === 'scheduled';
+        return $this->status === 'scheduled';
     }
 
     public function isDraft()
     {
-        return $this->effective_status === 'draft';
+        return $this->status === 'draft';
     }
+
+    public function scopeWhereScheduledAndPastScheduledTime($query)
+    {
+        return $query->where('status', 'scheduled')->where('scheduled_time', '<=', Carbon::now());
+    }
+
 
     public function isAuthorized()
     {
         return $this->user_id == auth()->guard('sanctum')->user()->id;
     }
 
-    public function getEffectiveStatusAttribute()
-    {
-        if ($this->scheduledTime()->isPast() && $this->status == 'scheduled') {
-            $this->update([
-                'status' => 'published',
-            ]);
-        }
-
-        if ($this->scheduledTime()->isFuture() && $this->status == 'published') {
-            $this->update([
-                'status' => 'scheduled',
-            ]);
-        }
-        $this->save();
-        return $this->status;
-    }
     public function getDateAttribute()
     {
         $dateTime = Carbon::parse($this->scheduled_time);
