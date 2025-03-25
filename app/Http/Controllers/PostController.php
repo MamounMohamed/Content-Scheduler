@@ -26,11 +26,6 @@ class PostController extends Controller
 
         $posts = $this->postService->index();
         $platforms = \App\Models\Platform::pluck('name', 'id');
-        $posts->map(function ($post) {
-            $post->date = Carbon::parse($post->scheduled_time)->format('Y-m-d');
-            $post->time = Carbon::parse($post->scheduled_time)->format('H:i A');
-            return $post;
-        });
         return Inertia::render('Posts', ['posts' => $posts, 'platforms' => $platforms]);
     }
 

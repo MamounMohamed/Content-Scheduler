@@ -12,10 +12,10 @@ class PlatformController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Settings/Settings', ['platforms' => PostPlatform::with(['platform', 'post'])
-            ->whereHas('post', function ($query) {
-                $query->where('user_id', auth()->guard('sanctum')->user()->id);
-            })->get()]);
+        $platforms = PostPlatform::with(['platform', 'post'])
+            ->whereUser(auth()->guard('sanctum')->user())->get();
+
+        return Inertia::render('Settings/Settings', ['platforms' => $platforms]);
     }
 
     public function toggleActive(string $id)
@@ -35,10 +35,15 @@ class PlatformController extends Controller
                 'is_active' => !$platform->is_active,
             ]);
 
+            if(!$platform->is_active && !$platform->post->isPublished()){
+                $platform->post->update([
+                    'status' => 'draft',
+                ]);
+            }
             DB::commit();
+
+
             $platform->name = $platform->platform->name;
-
-
             return $platform;
         } catch (\Exception $e) {
             DB::rollBack();

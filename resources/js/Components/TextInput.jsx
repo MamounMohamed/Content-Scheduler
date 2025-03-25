@@ -1,13 +1,13 @@
 import React from "react";
 
-const TextInput = ({ label, value, onChange, placeholder, maxLength, required }) => {
+const TextInput = ({ label, value, onChange, placeholder, maxLength, required , type='text'}) => {
     return (
         <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {label}
             </label>
             <input
-                type="text"
+                type={type}
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}

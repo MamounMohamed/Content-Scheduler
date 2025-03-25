@@ -11,16 +11,21 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PostService
 {
-    protected $userId;
 
-  
     public function index()
     {
         $posts = \App\Models\Post::where('user_id', auth()->guard('sanctum')->user()->id)->get();
+        $posts->map(function ($post) {
+            $post->date = Carbon::parse($post->scheduled_time)->format('Y-m-d');
+            $post->time = Carbon::parse($post->scheduled_time)->format('H:i A');
+            return $post;
+        });
+
         return $posts->values();
     }
 

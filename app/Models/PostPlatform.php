@@ -46,6 +46,13 @@ class PostPlatform extends Pivot
         return $this->post->isAuthorized();
     }
 
+    public function scopeWhereUser($query, $user)
+    {
+        return $query->whereHas('post', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        });
+    }
+
     public function isActive()
     {
         return $this->is_active === true;
