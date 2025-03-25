@@ -59,7 +59,7 @@ class PostService
         if (!$post)
             throw new HttpException(404, 'Post not found');
         if (!$post->isAuthorized())
-            throw new HttpException(401, 'You are not authorized to perform this action');
+            throw new HttpException(403, 'You are not authorized to perform this action');
         return $post;
     }
 
@@ -68,11 +68,9 @@ class PostService
     {
         $post = $this->find($id);
         if ($post->isPublished())
-            throw new HttpException(401, 'You cannot update a published post');
-
+            throw new HttpException(403, 'You cannot update a published post');
         try {
             DB::beginTransaction();
-
             Arr::set($data, 'user_id', auth()->guard('sanctum')->user()->id);
             Arr::set($data, 'status', 'scheduled'); // Default status is scheduled
             $postImage = Arr::get($data, 'image');
@@ -93,10 +91,11 @@ class PostService
 
     public  function destroy(string $id)
     {
+        $post = $this->find($id);
+        if ($post->isPublished())
+            throw new HttpException(403, 'You cannot delete a published post');
+
         try {
-            $post = $this->find($id);
-            if ($post->isPublished())
-                throw new HttpException(401, 'You cannot delete a published post');
             DB::beginTransaction();
             $post->delete();
             DB::commit();
@@ -104,5 +103,6 @@ class PostService
             DB::rollBack();
             throw new HttpException(500, 'Internal server error while deleting post ' . $e->getMessage());
         }
+
     }
 }

@@ -15,26 +15,27 @@ use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
-    protected $postService ;
+    protected $postService;
 
     public function __construct(PostService $postService)
     {
         $this->postService = $postService;
     }
-    private function postsCacheKey(){
-        return 'all_posts_cache_user_id_'.auth()->guard('sanctum')->user()->id;
+    private function postsCacheKey()
+    {
+        return 'all_posts_cache_user_id_' . auth()->guard('sanctum')->user()->id;
     }
-    private function platformsCacheKey(){
+    private function platformsCacheKey()
+    {
         return 'platforms_cache_pluck_name_id';
     }
-    private function postCacheKey($postId){
-        return 'posts_cache_find_'.$postId;
+    private function postCacheKey($postId)
+    {
+        return 'posts_cache_find_' . $postId;
     }
 
     public function index(Request $request)
     {
-        
-
         $posts = Cache::remember($this->postsCacheKey(), 3600, function () {
             return $this->postService->index();
         });
@@ -44,7 +45,7 @@ class PostController extends Controller
         });
 
 
-        return Inertia::render('Posts/Index', ['posts' => $posts, 'platforms' => $platforms ]);
+        return Inertia::render('Posts/Index', ['posts' => $posts, 'platforms' => $platforms]);
     }
 
     public function create()
@@ -64,7 +65,7 @@ class PostController extends Controller
         try {
 
             Cache::forget($this->postsCacheKey());
-                       $post = $this->postService->store($request->validated());
+            $post = $this->postService->store($request->validated());
             return $this->successResponse(
                 [
                     'post' => PostResource::make($post),
@@ -79,18 +80,16 @@ class PostController extends Controller
     public function edit(string $id)
     {
         try {
-        $post = $this->postService->find($id);
-        return Inertia::render(
-            'Posts/Manage',
-            [
-                'postData' => $post,
-                'allPlatforms' => \App\Models\Platform::all(),
-                'mode' => 'edit'
-            ]
-        );
-    
-        }
-        catch (HttpException $e) {
+            $post = $this->postService->find($id);
+            return Inertia::render(
+                'Posts/Manage',
+                [
+                    'postData' => $post,
+                    'allPlatforms' => \App\Models\Platform::all(),
+                    'mode' => 'edit'
+                ]
+            );
+        } catch (HttpException $e) {
             return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
                 'status' => $e->getStatusCode(),
                 'message' => $e->getMessage(),
@@ -98,10 +97,10 @@ class PostController extends Controller
         }
     }
     public function update(PostRequest $request, string $id)
-    {   
+    {
         Cache::forget($this->postsCacheKey());
         Cache::forget($this->postCacheKey($id));
-       
+
         try {
             $post = $this->postService->update($request->validated(), $id);
             return $this->successResponse(
@@ -123,7 +122,6 @@ class PostController extends Controller
             });
 
             return Inertia::render('Posts/View', ['postData' => $post]);
-            
         } catch (HttpException $e) {
             return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
                 'status' => $e->getStatusCode(),
@@ -135,7 +133,7 @@ class PostController extends Controller
     public function destroy(Request $request, string $id)
     {
         Cache::forget($this->postsCacheKey());
-               Cache::forget($this->postCacheKey($id));
+        Cache::forget($this->postCacheKey($id));
         try {
             $this->postService->destroy($id);
             return $this->successResponse(
@@ -147,5 +145,4 @@ class PostController extends Controller
             return $this->failedResponse($e->getMessage(), $e->getStatusCode());
         }
     }
-
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class PostPlatform extends Pivot
+class PostPlatform extends Model
 {
     /** @use HasFactory<\Database\Factories\PostPlatformFactory> */
     use HasFactory;

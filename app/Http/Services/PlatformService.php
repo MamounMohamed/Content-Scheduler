@@ -24,16 +24,16 @@ class PlatformService
 
     public function toggleActive($id)
     {
+        $platform = PostPlatform::find($id);
+        if (!$platform) {
+            throw new HttpException(404, 'Platform not found');
+        }
+        if (!$platform->isAuthorized()) {
+            throw new HttpException(403, 'You are not authorized to perform this action');
+        }
+
         try {
             DB::beginTransaction();
-            $platform = PostPlatform::find($id);
-            if (!$platform) {
-                throw new HttpException(404, 'Platform not found');
-            }
-            $platform->load('post.user');
-            if (!$platform->isAuthorized()) {
-                return new HttpException(401, 'You are not authorized to perform this action');
-            }
 
             $platform->update([
                 'is_active' => !$platform->is_active,
@@ -50,7 +50,7 @@ class PlatformService
             return $platform;
         } catch (\Exception $e) {
             DB::rollBack();
-            return new HttpException(500, 'Failed to update platform ' . $e->getMessage());
+            throw new HttpException(500, 'Failed to update platform ' . $e->getMessage());
         }
     }
 }
