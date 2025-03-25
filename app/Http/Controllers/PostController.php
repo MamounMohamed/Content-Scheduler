@@ -44,13 +44,13 @@ class PostController extends Controller
         });
 
 
-        return Inertia::render('Posts', ['posts' => $posts, 'platforms' => $platforms ]);
+        return Inertia::render('Posts/Index', ['posts' => $posts, 'platforms' => $platforms ]);
     }
 
     public function create()
     {
         return Inertia::render(
-            'PostEditor/PostEditor',
+            'Posts/Manage',
             [
                 'postData' => [],
                 'allPlatforms' => \App\Models\Platform::get(),
@@ -82,7 +82,7 @@ class PostController extends Controller
         try {
         $post = $this->postService->find($id);
         return Inertia::render(
-            'PostEditor/PostEditor',
+            'Posts/Manage',
             [
                 'postData' => $post,
                 'allPlatforms' => \App\Models\Platform::all(),
@@ -124,11 +124,8 @@ class PostController extends Controller
                 return $this->postService->find($id)->load('platforms', 'user');
             });
 
-            return $this->successResponse(
-                [
-                    'post' => PostResource::make($post),
-                ]
-            );
+            return Inertia::render('Posts/View', ['post' => $post]);
+            
         } catch (HttpException $e) {
             return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
                 'status' => $e->getStatusCode(),

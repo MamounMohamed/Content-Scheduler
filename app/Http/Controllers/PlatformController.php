@@ -33,7 +33,7 @@ class PlatformController extends Controller
         });
 
 
-        return Inertia::render('Settings/Settings', ['platforms' => $platforms]);
+        return Inertia::render('Platforms/Index', ['platforms' => $platforms]);
     }
 
     public function toggleActive(string $id)
