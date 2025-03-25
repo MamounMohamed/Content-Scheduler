@@ -62,6 +62,11 @@ class Post extends Model
         return $this->effective_status === 'draft';
     }
 
+    public function isAuthorized()
+    {
+        return $this->user_id == auth()->guard('sanctum')->user()->id;
+    }
+
     public function getEffectiveStatusAttribute()
     {
         if ($this->scheduledTime()->isPast() && $this->status == 'scheduled') {

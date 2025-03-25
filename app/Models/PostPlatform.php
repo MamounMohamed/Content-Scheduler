@@ -41,6 +41,11 @@ class PostPlatform extends Pivot
         return $this->belongsTo(Platform::class);
     }
 
+    public function isAuthorized()
+    {
+        return $this->post->isAuthorized();
+    }
+
     public function isActive()
     {
         return $this->is_active === true;

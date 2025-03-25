@@ -19,11 +19,13 @@ class PostRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
+
     public function rules(): array
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
+            'content' => ['required', 'string','max:500'],
             'image' => ['nullable', 'file'],
             'scheduled_time' => ['required', 'date'],
             'status' => ['nullable', 'string'],

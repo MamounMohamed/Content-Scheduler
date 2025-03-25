@@ -72,7 +72,7 @@ class PostController extends Controller
             ]
         );
     }
-    public function update(PostRequest $request, string $id)
+    public function update(PostRequest $request , string $id)
     {
         try {
             $post = $this->postService->update($request->validated(), $id);

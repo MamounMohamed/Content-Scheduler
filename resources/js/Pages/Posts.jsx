@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { PencilLine, Trash } from 'lucide-react';
+import { PencilLine, Trash , CirclePlus } from 'lucide-react';
 import axios from 'axios';
 
 const localizer = momentLocalizer(moment);
@@ -39,25 +39,32 @@ const Posts = (props) => {
             <Head title="Posts" />
 
 
+
+
             <div className="p-4">
                 <h1 className="text-2xl font-bold mb-4">Your Posts</h1>
+                <div className='flex row justify-between items-center'>
+                    {/* View Toggle */}
+                    <div className="flex space-x-4 mb-4">
+                        <button
+                            onClick={() => setView("calendar")}
+                            className={`px-4 py-2 rounded ${view === "calendar" ? "bg-blue-500 text-white" : "bg-gray-200"
+                                }`}
+                        >
+                            Calendar View
+                        </button>
+                        <button
+                            onClick={() => setView("list")}
+                            className={`px-4 py-2 rounded ${view === "list" ? "bg-blue-500 text-white" : "bg-gray-200"
+                                }`}
+                        >
+                            List View
+                        </button>
+                    </div>
 
-                {/* View Toggle */}
-                <div className="flex space-x-4 mb-4">
-                    <button
-                        onClick={() => setView("calendar")}
-                        className={`px-4 py-2 rounded ${view === "calendar" ? "bg-blue-500 text-white" : "bg-gray-200"
-                            }`}
-                    >
-                        Calendar View
-                    </button>
-                    <button
-                        onClick={() => setView("list")}
-                        className={`px-4 py-2 rounded ${view === "list" ? "bg-blue-500 text-white" : "bg-gray-200"
-                            }`}
-                    >
-                        List View
-                    </button>
+                    <a href={route('posts.create')} className='flex flex-row items-center space-x-2 rounded-md px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white justify-end gap-2'>
+                       Create Post<CirclePlus />
+                    </a>
                 </div>
 
                 {/* Filters */}

@@ -30,11 +30,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Posts
                                 </NavLink>
+
                                 <NavLink
-                                    href={route('posts.create')}
-                                    active={route().current('posts.create')}
+                                    href={route('platforms.index')}
+                                    active={route().current('platforms.index')}
                                 >
-                                    Create Post
+                                    Platforms
                                 </NavLink>
                             </div>
                         </div>
@@ -139,6 +140,15 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('posts.index')}
                         >
                             Your Posts
+                        </ResponsiveNavLink>
+                    </div>
+
+                    <div className="space-y-1 pb-3 pt-2">
+                        <ResponsiveNavLink
+                            href={route('platforms.index')}
+                            active={route().current('platforms.index')}
+                        >
+                            Platforms
                         </ResponsiveNavLink>
                     </div>
 

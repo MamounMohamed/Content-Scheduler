@@ -1,6 +1,6 @@
 import React from "react";
 
-const MultiSelect = ({ label, options, value, onChange, required }) => {
+const MultiSelect = ({ label, options, value, onChange, required}) => {
     return (
         <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -14,7 +14,7 @@ const MultiSelect = ({ label, options, value, onChange, required }) => {
                 required={required}
             >
                 {options.map((option) => (
-                    <option key={option.value} value={option.value} className="p-2 border rounded">
+                    <option key={option.value} value={option.value} className="p-2 border rounded" selected={value.includes(option.value)}>
                         {option.label}
                     </option>
                 ))}
