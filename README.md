@@ -77,6 +77,14 @@ To manually update the post statuses, run:
 php artisan posts:update-status
 ```
 
+## Running the `UpdatePostStatusJob` Job
+To update the post statuses every minute, run:
+```sh
+php artisan schedule:run
+```
+don't forget to add the cron job to your server 
+
+
 ## Documentation
 
 ### Features Implemented
@@ -84,6 +92,7 @@ php artisan posts:update-status
 - **Post Management**: Users can create, schedule, edit, delete, and view unpublished posts.
 - **Platform Activity Status**: Users can activate and deactivate the activity status of the platform.
 - **Post Scheduling**: Scheduled posts are updated when their scheduled time passes using the `posts:update-status` command.
+- **UpdatePostStatusJob**: A job is scheduled to update the post statuses every minute.
 - **Scopes and Function on Models** : Used for reusable queries and functions on models.
 - **Database Transactions**: Utilized database transactions to ensure data integrity.
 - **Caching**: Used for retrieving lists and single items, resetting on updates, deletions, and creations to ensure data consistency.

@@ -69,6 +69,12 @@ class Post extends Model
         return $query->where('status', 'scheduled')->where('scheduled_time', '<=', $currentDateTime);
     }
 
+    public function scopeWherePublishedAndFutureScheduledTime($query)
+    {
+        $currentDateTime = Carbon::now()->utc()->toIso8601String();; // Current time in UTC
+        return $query->where('status', 'published')->where('scheduled_time', '>=', $currentDateTime);
+    }
+
     public function scopeWhereAuthenticatedUser($query)
     {
         return $query->where('user_id', auth()->guard('sanctum')->user()->id);

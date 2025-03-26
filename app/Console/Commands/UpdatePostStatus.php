@@ -36,6 +36,14 @@ class UpdatePostStatus extends Command
                 ]);
                 $this->info('Updating post status for post id: ' . $post->id);
             }
+
+            $unpublishedPosts = Post::wherePublishedAndFutureScheduledTime()->get();
+            foreach ($unpublishedPosts as $post) {
+                $post->update([
+                    'status' => 'scheduled',
+                ]);
+                $this->info('Updating post status for post id: ' . $post->id);
+            }
             DB::commit();
             $this->info('Posts\' status updated successfully');
         } catch (\Exception $e) {
