@@ -5,6 +5,8 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import Paginator from '@/Components/Paginator';
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { PencilLine, Trash, CirclePlus , Eye } from 'lucide-react';
 
 const localizer = momentLocalizer(moment);
@@ -36,8 +38,10 @@ const Posts = (props) => {
             .then(() => {
                 // Remove the deleted post from the current state
                  setPosts(posts.filter(post => post.id !== id));
+                 toast.success('Post deleted successfully');
             })
             .catch((error) => {
+                toast.error(error?.response?.data?.message);
                 console.error(error);
             });
     };
@@ -157,6 +161,19 @@ const Posts = (props) => {
                             currentPage={currentPage}
                             lastPage={Math.ceil(filteredPosts.length / itemsPerPage)}
                             onPageChange={handlePageChange}
+                        />
+                        
+                        {/* Toast Notifications Container */}
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={3000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
                         />
                     </div>
                 )}
