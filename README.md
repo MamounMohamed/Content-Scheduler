@@ -6,7 +6,7 @@ Before you start, ensure you have the following installed:
 - **Composer** (latest version recommended)
 - **Node.js** (latest LTS version)
 - **NPM** (installed with Node.js)
-- **SQLite** 
+- **SQLite** (or any other database of your choice)
 
 ## Installation Steps
 
@@ -100,7 +100,7 @@ php artisan posts:update-status
 - **Backend**: Laravel with SQLite
 - **Frontend**: React with Inertia.js
 - **Caching**: Implemented for optimized performance
-- **Database**: SQLite
+- **Database**: SQLite 
 
 ### Main Project Files
 #### Models
@@ -134,5 +134,5 @@ php artisan posts:update-status
 
 ## Additional Notes
 - Ensure your `.env` file is correctly configured with the database and other necessary settings.
-- The used database is `sqlite`, so you may need to install the `pdo_sqlite` extension for your PHP version.
+- The used database is `sqlite`, so you may need to install the `pdo_sqlite` extension for your PHP version if you are using a different database than SQLite then make sure to change the `DB_CONNECTION` in the `.env` file to your desired database.
 
