@@ -14,9 +14,9 @@ const Posts = (props) => {
     const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'scheduled', 'published', 'error'
     const [currentPage, setCurrentPage] = useState(1); // Current page for client-side pagination
     const [itemsPerPage] = useState(10); // Number of items per page
-
+    const [posts, setPosts] = useState(props.posts);
     // Filtered posts based on status
-    const filteredPosts = props.posts.filter((post) =>
+    const filteredPosts = posts.filter((post) =>
         filterStatus === "all" ? true : post.status === filterStatus
     );
 
@@ -35,7 +35,7 @@ const Posts = (props) => {
         axios.delete(route('posts.destroy', { id }))
             .then(() => {
                 // Remove the deleted post from the current state
-                props.posts = props.posts.filter(post => post.id !== id);
+                 setPosts(posts.filter(post => post.id !== id));
             })
             .catch((error) => {
                 console.error(error);
