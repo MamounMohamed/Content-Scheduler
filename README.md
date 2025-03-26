@@ -67,6 +67,9 @@ To seed the database, run the following command:
   ```sh
   php artisan db:seed
   ```
+  users will be created with the following credentials with seeded data:
+  - main_user@test.com (password: 123456)
+  - test_user@test.com (password: 123456)
 
 ## Running the `posts:update-status` Command
 To manually update the post statuses, run:
