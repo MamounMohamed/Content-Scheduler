@@ -93,7 +93,7 @@ php artisan posts:update-status
 - **Pagination and Filtering** : Utilized pagination and filtering to enhance user experience
 - **Error Handling** : Implemented error pages for 404 and 403 errors to provide clear and informative error messages
 
--
+
 ### Tech Stack
 - **Backend**: Laravel with SQLite
 - **Frontend**: React with Inertia.js
