@@ -83,13 +83,22 @@ To update the post statuses every minute, run:
 php artisan schedule:run
 ```
 don't forget to add the cron job to your server 
+Run :
 ```sh
 crontab -e
 ``` 
+make sure to add the following line to your crontab:
 ```sh
 * * * * * php /path/to/project/artisan schedule:run >> /dev/null 2>&1
 ```
-
+If it wasn't there, add it, save the file, and restart cron:
+```sh
+sudo service cron restart
+```
+To check if cron is running:
+```sh
+ps aux | grep cron
+```
 
 ## Documentation
 
