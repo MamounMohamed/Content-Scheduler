@@ -16,7 +16,7 @@ it('can toggle active status of a post if authorized', function () {
     $postPlatform = PostPlatform::factory()->create(['post_id' => $post->id, 'is_active' => true]);
 
     // Act
-    $response = $this->putJson(route('platforms.toggle-active', ['id' => $postPlatform->id]));
+    $response = $this->putJson(route('platforms.toggle-active', ['platform' => $postPlatform->id]));
     // Assert
     $response->assertOk();
 });
@@ -29,7 +29,7 @@ it('can\'t toggle active status of a post if unauthorized', function () {
     $post = Post::factory()->create(['user_id' => $unauthorizedUser->id, 'status' => 'scheduled']);
     $postPlatform = PostPlatform::factory()->create(['post_id' => $post->id, 'is_active' => true]);
     // Act
-    $response = $this->putJson(route('platforms.toggle-active', ['id' => $postPlatform->id]));
+    $response = $this->putJson(route('platforms.toggle-active', ['platform' => $postPlatform->id]));
     // Assert
     $response->assertStatus(403);
 });

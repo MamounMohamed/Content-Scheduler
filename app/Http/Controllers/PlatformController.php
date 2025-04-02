@@ -19,6 +19,8 @@ class PlatformController extends Controller
     public function __construct(PlatformService $platformService)
     {
         $this->platformService = $platformService;
+        // Apply global middleware to enforce policies
+        $this->authorizeResource(PostPlatform::class, 'postPlatform');
     }
 
     private function platformsCacheKey()
@@ -28,6 +30,8 @@ class PlatformController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', PostPlatform::class);
+
         $platforms = Cache::remember($this->platformsCacheKey(), 3600, function () {
             return $this->platformService->index();
         });
@@ -36,11 +40,12 @@ class PlatformController extends Controller
         return Inertia::render('Platforms/Index', ['platforms' => $platforms]);
     }
 
-    public function toggleActive(string $id)
+    public function toggleActive(PostPlatform $platform)
     {
+        $this->authorize('update', $platform);
         Cache::forget($this->platformsCacheKey());
         try {
-            $platform = $this->platformService->toggleActive($id);
+            $platform = $this->platformService->toggleActive($platform);
             return $this->successResponse(
                 [
                     'platform' => PostPlatformResource::make($platform),

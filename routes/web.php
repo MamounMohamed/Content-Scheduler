@@ -20,7 +20,7 @@ Route::get('/', function () {
 Route::resource('posts', PostController::class)->middleware(['auth:sanctum', 'verified']);
 Route::group(['prefix' => 'platforms'], function () {
     Route::get('/', [PlatformController::class, 'index'])->name('platforms.index');
-    Route::put('/{id}', [PlatformController::class, 'toggleActive'])->name('platforms.toggle-active');
+    Route::put('/{platform}', [PlatformController::class, 'toggleActive'])->name('platforms.toggle-active');
 })->middleware(['auth:sanctum', 'verified']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

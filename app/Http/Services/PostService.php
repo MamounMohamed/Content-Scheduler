@@ -53,20 +53,9 @@ class PostService
         }
     }
 
-    public  function find(string $id)
-    {
-        $post = Post::find($id);
-        if (!$post)
-            throw new HttpException(404, 'Post not found');
-        if (!$post->isAuthorized())
-            throw new HttpException(403, 'You are not authorized to perform this action');
-        return $post;
-    }
 
-
-    public  function update(array $data, string $id)
+    public  function update(array $data, Post $post)
     {
-        $post = $this->find($id);
         if ($post->isPublished())
             throw new HttpException(403, 'You cannot update a published post');
         try {
@@ -89,9 +78,8 @@ class PostService
         }
     }
 
-    public  function destroy(string $id)
+    public  function destroy(Post $post)
     {
-        $post = $this->find($id);
         if ($post->isPublished())
             throw new HttpException(403, 'You cannot delete a published post');
 

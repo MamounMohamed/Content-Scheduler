@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Models\Post;
 use App\Models\PostPlatform;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\DB;
@@ -22,19 +23,13 @@ class PlatformService
         return $postPlatforms->values();
     }
 
-    public function toggleActive($id)
+    public function toggleActive(PostPlatform $platform)
     {
-        $platform = PostPlatform::find($id);
         if (!$platform) {
             throw new HttpException(404, 'Platform not found');
         }
-        if (!$platform->isAuthorized()) {
-            throw new HttpException(403, 'You are not authorized to perform this action');
-        }
-
         try {
             DB::beginTransaction();
-
             $platform->update([
                 'is_active' => !$platform->is_active,
             ]);

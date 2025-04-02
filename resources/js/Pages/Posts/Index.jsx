@@ -7,7 +7,8 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { PencilLine, Trash, CirclePlus , Eye } from 'lucide-react';
+import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
+import { PencilLine, Trash, CirclePlus, Eye } from 'lucide-react';
 
 const localizer = momentLocalizer(moment);
 
@@ -17,6 +18,8 @@ const Posts = (props) => {
     const [currentPage, setCurrentPage] = useState(1); // Current page for client-side pagination
     const [itemsPerPage] = useState(10); // Number of items per page
     const [posts, setPosts] = useState(props.posts);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [selectedPostToDelete, setSelectedPostToDelete] = useState(null);
     // Filtered posts based on status
     const filteredPosts = posts.filter((post) =>
         filterStatus === "all" ? true : post.status === filterStatus
@@ -37,8 +40,8 @@ const Posts = (props) => {
         axios.delete(route('posts.destroy', { id }))
             .then(() => {
                 // Remove the deleted post from the current state
-                 setPosts(posts.filter(post => post.id !== id));
-                 toast.success('Post deleted successfully');
+                setPosts(posts.filter(post => post.id !== id));
+                toast.success('Post deleted successfully');
             })
             .catch((error) => {
                 toast.error(error?.response?.data?.message);
@@ -149,7 +152,10 @@ const Posts = (props) => {
                                                 <a href={route('posts.edit', { id: post.id })}>
                                                     <PencilLine className='cursor-pointer' />
                                                 </a>
-                                                <Trash onClick={() => onDelete(post.id)} className='cursor-pointer' />
+                                                <Trash onClick={() => {
+                                                    setConfirmDelete(true);
+                                                    setSelectedPostToDelete(post);
+                                                }} className='cursor-pointer' />
                                             </div>
                                         )}
                                     </div>
@@ -162,7 +168,7 @@ const Posts = (props) => {
                             lastPage={Math.ceil(filteredPosts.length / itemsPerPage)}
                             onPageChange={handlePageChange}
                         />
-                        
+
                         {/* Toast Notifications Container */}
                         <ToastContainer
                             position="top-right"
@@ -178,6 +184,19 @@ const Posts = (props) => {
                     </div>
                 )}
             </div>
+
+            {/* Confirm Delete Modal */}
+            {confirmDelete && (
+                <ConfirmDeleteModal
+                onConfirm={() => {
+                    onDelete(selectedPostToDelete.id);
+                    setConfirmDelete(false);
+                }}
+                onCancel={() => setConfirmDelete(false)}
+                title="Delete Post"
+                message={`Are you sure you want to delete the post "${selectedPostToDelete.title}"?`}
+            />
+            )}
         </AuthenticatedLayout>
     );
 };

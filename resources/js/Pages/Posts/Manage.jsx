@@ -58,14 +58,16 @@ const PostEditor = (props) => {
                     formData,
                     config
                 );
+                
+
             } else {
                 response = await axios.post(route("posts.store"), formData, config);
             }
 
             // Show success notification
             toast.success(response?.data?.message);
-
-            console.log(response.data); // Log the response for debugging
+            window.location.href = route("posts.show", { post: response?.data?.data?.post?.id });
+            console.log(response.data); 
         } catch (error) {
             // Show error notification
             toast.error(error?.response?.data?.message);

@@ -1,17 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Http\Resources\PostResource;
 use App\Http\Services\PostService;
 use App\Http\Requests\PostRequest;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -20,36 +15,43 @@ class PostController extends Controller
     public function __construct(PostService $postService)
     {
         $this->postService = $postService;
+
+        // Apply global middleware to enforce policies
+        $this->authorizeResource(Post::class, 'post');
     }
+
     private function postsCacheKey()
     {
         return 'all_posts_cache_user_id_' . auth()->guard('sanctum')->user()->id;
     }
+
     private function platformsCacheKey()
     {
         return 'platforms_cache_pluck_name_id';
     }
+
     private function postCacheKey($postId)
     {
         return 'posts_cache_find_' . $postId;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $posts = Cache::remember($this->postsCacheKey(), 3600, function () {
+        $this->authorize('viewAny', Post::class);
+        $posts = cache()->remember($this->postsCacheKey(), 3600, function () {
             return $this->postService->index();
         });
 
-        $platforms = Cache::remember($this->platformsCacheKey(), 3600, function () {
+        $platforms = cache()->remember($this->platformsCacheKey(), 3600, function () {
             return \App\Models\Platform::pluck('name', 'id');
         });
-
 
         return Inertia::render('Posts/Index', ['posts' => $posts, 'platforms' => $platforms]);
     }
 
     public function create()
     {
+        $this->authorize('create', Post::class);
         return Inertia::render(
             'Posts/Manage',
             [
@@ -62,9 +64,9 @@ class PostController extends Controller
 
     public function store(PostRequest $request)
     {
+        $this->authorize('create', Post::class);
         try {
-
-            Cache::forget($this->postsCacheKey());
+            cache()->forget($this->postsCacheKey());
             $post = $this->postService->store($request->validated());
             return $this->successResponse(
                 [
@@ -72,77 +74,69 @@ class PostController extends Controller
                 ],
                 201
             );
-        } catch (HttpException $e) {
-            return $this->failedResponse($e->getMessage(), $e->getStatusCode());
+        } catch (\Exception $e) {
+            return $this->failedResponse($e->getMessage(), 500);
         }
     }
 
-    public function edit(string $id)
+    public function show(Post $post)
     {
-        try {
-            $post = $this->postService->find($id);
-            return Inertia::render(
-                'Posts/Manage',
-                [
-                    'postData' => $post,
-                    'allPlatforms' => \App\Models\Platform::all(),
-                    'mode' => 'edit'
-                ]
-            );
-        } catch (HttpException $e) {
-            return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
-                'status' => $e->getStatusCode(),
-                'message' => $e->getMessage(),
-            ])->toResponse(request())->setStatusCode($e->getStatusCode());
-        }
+        $this->authorize('view', $post);
+
+        $post = cache()->remember($this->postCacheKey($post->id), 3600, function () use ($post) {
+            return $post->load('platforms', 'user');
+        });
+
+        return Inertia::render('Posts/View', ['postData' => $post]);
     }
-    public function update(PostRequest $request, string $id)
+
+    public function edit(Post $post)
     {
-        Cache::forget($this->postsCacheKey());
-        Cache::forget($this->postCacheKey($id));
+        $this->authorize('update', $post);
+
+        return Inertia::render(
+            'Posts/Manage',
+            [
+                'postData' => $post,
+                'allPlatforms' => \App\Models\Platform::all(),
+                'mode' => 'edit'
+            ]
+        );
+    }
+
+    public function update(PostRequest $request, Post $post)
+    {
+        $this->authorize('update', $post);
+        cache()->forget($this->postsCacheKey());
+        cache()->forget($this->postCacheKey($post->id));
 
         try {
-            $post = $this->postService->update($request->validated(), $id);
+            $post = $this->postService->update($request->validated(),$post);
             return $this->successResponse(
                 [
                     'post' => PostResource::make($post),
                 ]
             );
-        } catch (HttpException $e) {
-            return $this->failedResponse($e->getMessage(), $e->getStatusCode());
+        } catch (\Exception $e) {
+            return $this->failedResponse($e->getMessage(), 500);
         }
     }
 
-
-    public function show(string $id)
+    public function destroy(Post $post)
     {
-        try {
-            $post = Cache::remember($this->postCacheKey($id), 3600, function () use ($id) {
-                return $this->postService->find($id)->load('platforms', 'user');
-            });
+        $this->authorize('delete', $post);
+        cache()->forget($this->postsCacheKey());
+        cache()->forget($this->postCacheKey($post->id));
 
-            return Inertia::render('Posts/View', ['postData' => $post]);
-        } catch (HttpException $e) {
-            return Inertia::render($e->getStatusCode() === 404 ? 'Errors/NotFound' : 'Errors/Unauthorized', [
-                'status' => $e->getStatusCode(),
-                'message' => $e->getMessage(),
-            ])->toResponse(request())->setStatusCode($e->getStatusCode());
-        }
-    }
-
-    public function destroy(Request $request, string $id)
-    {
-        Cache::forget($this->postsCacheKey());
-        Cache::forget($this->postCacheKey($id));
         try {
-            $this->postService->destroy($id);
+            $this->postService->destroy($post);
             return $this->successResponse(
                 [
                     'message' => 'Post deleted successfully'
                 ]
             );
-        } catch (HttpException $e) {
-            return $this->failedResponse($e->getMessage(), $e->getStatusCode());
+        } catch (\Exception $e) {
+            return $this->failedResponse($e->getMessage(), 500);
         }
     }
 }
