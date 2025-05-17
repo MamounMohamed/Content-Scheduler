@@ -4,7 +4,7 @@ export default function ApplicationLogo(props) {
 {...props}
  xmlns="http://www.w3.org/2000/svg"
 
-  viewBox="0 0 316 316"
+  viewBox="0 0 563 545"
  >
 
 <g transform="translate(0.000000,545.000000) scale(0.100000,-0.100000)"
