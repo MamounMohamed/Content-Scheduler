@@ -10,4 +10,9 @@ export default defineConfig({
         }),
         react(),
     ],
+    base: '/build/', // or '/'
+    server: {
+      https: true,
+    },
+  
 });
